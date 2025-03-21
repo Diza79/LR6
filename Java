@@ -1,0 +1,120 @@
+import java.util.ArrayList;
+import java.util.List;
+
+// Абстрактный класс
+abstract class GameObject {
+    abstract void display();
+}
+
+// Базовый класс
+class Cell extends GameObject {
+    protected int x; // Координата по оси X
+    protected int y; // Координата по оси Y
+
+    public Cell(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    @Override
+    public void display() {
+        System.out.println("Cell: (" + x + ", " + y + ")");
+    }
+}
+
+// Производный класс
+class SpecialCell extends Cell {
+    private String specialType;
+
+    public SpecialCell(int x, int y, String type) {
+        super(x, y);
+        this.specialType = type;
+    }
+
+    @Override
+    public void display() {
+        System.out.println("SpecialCell: (" + x + ", " + y + ") Type: " + specialType);
+    }
+
+    public void displayWithoutBase() {
+                System.out.println("SpecialCell of type " + specialType + " at (" + x + ", " + y + ")");
+    }
+}
+
+// Базовый класс для игры
+class Game {
+    protected static int gameCount = 0; // Статическое поле для подсчета объектов
+    protected String playerName;
+
+    public Game(String name) {
+        this.playerName = name;
+        gameCount++;
+    }
+
+    public void start() {
+        System.out.println("Game started for player: " + playerName);
+    }
+
+    public static int getGameCount() {
+        return gameCount; // Статический метод для получения количества игр
+    }
+}
+
+// Производный класс для конкретной игры
+class AdvancedGame extends Game {
+    public AdvancedGame(String name) {
+        super(name);
+    }
+
+    @Override
+    public void start() {
+        System.out.println("Advanced game started for player: " + playerName);
+    }
+}
+
+// Интерфейс для клонирования
+interface Clonable {
+    Clonable clone(); // Метод клонирования
+}
+
+// Класс, допускающий клонирование
+class ClonableCell extends Cell implements Clonable {
+    public ClonableCell(int x, int y) {
+        super(x, y);
+    }
+
+    @Override
+    public ClonableCell clone() {
+        return new ClonableCell(x, y); // Поверхностное клонирование
+    }
+
+    // Глубокое клонирование (в данном примере просто создаем новый объект)
+    public ClonableCell deepClone() {
+        return new ClonableCell(x, y);
+    }
+}
+
+// Главный класс
+public class GameDemo {
+    public static void main(String[] args) {
+        // Создаем игры
+        Game game1 = new Game("Player 1") {};
+        AdvancedGame game2 = new AdvancedGame("Player 2");
+
+        game1.start();
+        game2.start();
+
+        System.out.println("Общее количество созданных игр: " + Game.getGameCount());
+
+        // Демонстрация работы с клетками
+        ClonableCell cell1 = new ClonableCell(1, 2);
+        cell1.display();
+
+        ClonableCell clonedCell = cell1.clone();
+        clonedCell.display();
+
+        ClonableCell deepClonedCell = cell1.deepClone();
+        deepClonedCell.display();
+    }
+}
+
