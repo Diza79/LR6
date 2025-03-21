@@ -1,0 +1,117 @@
+#include <iostream>
+#include <memory>
+#include <string>
+
+using namespace std;
+
+// Абстрактный класс
+class GameObject {
+public:
+    virtual void display() const = 0; // Чисто виртуальная функция
+    virtual ~GameObject() {} // Виртуальный деструктор
+};
+
+// Базовый класс
+class Cell : public GameObject {
+protected:
+    int x; // Координата по оси X
+    int y; // Координата по оси Y
+
+public:
+    Cell(int x = 0, int y = 0) : x(x), y(y) {}
+
+    void display() const override {
+        cout << "Cell: (" << x << ", " << y << ")" << endl;
+    }
+};
+
+// Производный класс
+class SpecialCell : public Cell {
+private:
+    string specialType;
+
+public:
+    SpecialCell(int x, int y, const string& type)
+        : Cell(x, y), specialType(type) {}
+
+    void display() const override {
+        cout << "SpecialCell: (" << x << ", " << y << ") Type: " << specialType << endl;
+    }
+
+    // Перегрузка метода display без вызова базового
+    void displayWithoutBase() const {
+        cout << "SpecialCell of type " << specialType << " at (" << x << ", " << y << ")" << endl;
+    }
+};
+
+// Базовый класс для игры
+class Game {
+protected:
+    static int gameCount; // Статическое поле для подсчета объектов
+    string playerName;
+
+public:
+    Game(const string& name) : playerName(name) {
+        gameCount++;
+    }
+
+    virtual void start() {
+        cout << "Game started for player: " << playerName << endl;
+    }
+
+    static int getGameCount() {
+        return gameCount; // Статический метод для получения количества игр
+    }
+
+    virtual ~Game() {}
+};
+
+// Производный класс для конкретной игры
+class AdvancedGame : public Game {
+public:
+    AdvancedGame(const string& name) : Game(name) {}
+
+    void start() override {
+        cout << "Advanced game started for player: " << playerName << endl;
+    }
+};
+
+// Класс, допускающий клонирование
+class ClonableCell : public Cell {
+public:
+    ClonableCell(int x, int y) : Cell(x, y) {}
+
+    ClonableCell* clone() const { // Поверхностное клонирование
+        return new ClonableCell(*this);
+    }
+
+    // Глубокое клонирование
+    ClonableCell* deepClone() const {
+        return new ClonableCell(x, y);
+    }
+};
+
+// Инициализация статического поля
+int Game::gameCount = 0;
+
+int main() {
+    // Создаем игры
+    unique_ptr<Game> game1 = make_unique<Game>("Player 1");
+    unique_ptr<AdvancedGame> game2 = make_unique<AdvancedGame>("Player 2");
+
+    game1->start();
+    game2->start();
+
+    cout << "Общее количество созданных игр: " << Game::getGameCount() << endl;
+
+    // Демонстрация работы с клетками
+    ClonableCell cell1(1, 2);
+    cell1.display();
+
+    ClonableCell* clonedCell = cell1.clone();
+    clonedCell->display();
+
+    delete clonedCell; // Освобождаем память
+
+    return 0;
+}
